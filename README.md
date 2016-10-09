@@ -1,19 +1,19 @@
 # EavesdropWeb
 
-To start your Phoenix app:
+Welcome!
 
-  * Install dependencies with `mix deps.get`
-  * Install Node.js dependencies with `npm install`
-  * Start Phoenix endpoint with `mix phoenix.server`
+The original Eavesdrop was built for the 2012 Node KO in ~48 hours. It
+used the Rdio (streaming music service, now defunct) API so that Rdio
+users could act as DJ for their friends (through the service). When a
+user(A) changed their song on Rdio, eavesdrop would pick up the change
+and broadcast it to any of their(As) friends who were listening
+through the eavesdrop web app.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+I aim to recreate the project with Elixir/OTP. Ultimately, I aim to
+make the music service backend agnostic; I will have to see how that
+goes.
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+At this time, there exists a toy implementation using the
+[EavesdropOTP](https://github.com/supernullset/eavesdrop-otp) library
+which is implemented using `gen_fsm` and `GenEvent`. I am as of yet
+unsure how I will end up plugging all this in.
