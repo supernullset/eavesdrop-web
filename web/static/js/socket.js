@@ -54,7 +54,8 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("room:sean", {});
+let user_name = document.getElementById("user_name").innerText;
+let channel = socket.channel(`room:${user_name}`, {});
 let messagesContainer = document.querySelector("#messages");
 
 channel.on("state_change", payload =>{

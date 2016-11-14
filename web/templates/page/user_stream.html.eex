@@ -1,4 +1,4 @@
-<h3><%= @user_name %>'s stream</h3>
+<h3><span id="user_name"><%= @user_name %></span>'s stream</h3>
 <div class="row marketing">
   <div class="col-lg-6">
     <div id="messages"></div>
