@@ -17,11 +17,15 @@ defmodule EavesdropWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/:user_name", PageController, :user_stream
   end
 
   scope "/api", EavesdropWeb do
     pipe_through :api
 
     get "/", API.RootController, :index
+    post "/play", API.RootController, :play
+    post "/stop", API.RootController, :stop
+    post "/signin", API.RootController, :signin
   end
 end

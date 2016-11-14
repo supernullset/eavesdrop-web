@@ -2,7 +2,7 @@ defmodule EavesdropWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", EavesdropWeb.RoomChannel
+  channel "room:*", EavesdropWeb.MusicChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,8 +19,8 @@ defmodule EavesdropWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(params, socket) do
+    {:ok, assign(socket, :listening_to, params["user_name"])}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

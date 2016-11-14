@@ -7,4 +7,11 @@ defmodule EavesdropWeb.API.RootView do
       data: %{ msg: "Welcome to Eavesdrop" }
     }
   end
+
+  def render("play_track.json", %{message: message}) do
+    %{
+      meta: %{},
+      data: %{ msg: message }
+    }
+  end
 end
