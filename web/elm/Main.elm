@@ -1,23 +1,44 @@
 module Main exposing (..)
 
-import Html.App as App
-import Html exposing (..)
-import Html.Attributes exposing (value, placeholder, class)
-import Html.Events exposing (onInput, onClick)
-import Json.Decode as JD exposing ((:=), at)
-import Dict
+--where
+import Html exposing (Html, h3, div, text, ul, li, input, form, button, br, table, tbody, tr, td, programWithFlags)
+import Platform.Cmd
 import Phoenix.Socket
 import Phoenix.Channel
-import Phoenix.Push
+import Json.Encode as JE
+import Json.Decode as JD exposing (field)
 
+
+-- MAIN
 
 type alias Flags =
     { userStream : String }
 
 
+main : Program Flags Model Msg
+main =
+    Html.programWithFlags
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
 
--- Our model will track a list of messages and the text for our new message to
--- send.  We only support chatting in a single channel for now.
+
+-- CONSTANTS
+socketServer : String
+socketServer =
+    "ws://localhost:4000/socket/websocket"
+
+-- MODEL
+
+
+type Msg
+    =
+    SetNewMessage String
+    | PhoenixMsg (Phoenix.Socket.Msg Msg)
+    | ReceiveChatMessage JE.Value
+    | NoOp
 
 
 type alias Model =
@@ -28,69 +49,61 @@ type alias Model =
     }
 
 
-type alias ApiResponse =
-    { meta : Dict
-    , data : Dict
-    }
-
-
-
--- We can either set our new message or join our channel
-
-
-type Msg
-    = JoinChannel
-    | PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | ReceiveApiResponse String
-
-
-initialModel : String -> Model
-initialModel stream =
-    { newMessage = ""
-    , messages = []
-    , phxSocket = initPhxSocket
-    , userStream = stream
-    }
-
-
-socketServer : String
-socketServer =
-    "ws://localhost:4000/socket/websocket"
-
-
-initPhxSocket : Phoenix.Socket.Socket Msg
-initPhxSocket =
+initPhxSocket : String -> Phoenix.Socket.Socket Msg
+initPhxSocket stream =
     Phoenix.Socket.init socketServer
         |> Phoenix.Socket.withDebug
-        |> Phoenix.Socket.on "new:msg" "rooms:*" ReceiveApiResponse
+        |> Phoenix.Socket.on "state_change" ("room:" ++ stream) ReceiveChatMessage
 
 
-apiResponseDecoder : JD.Decoder ApiResponse
-apiResponseDecoder =
-    JD.object2 ApiResponse
-        ("meta" := JD.dict string)
-        ("data" := JD.dict string)
+initModel : String -> Model
+initModel stream =
+    Model "" [] (initPhxSocket stream) stream
 
 
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    let
+        { userStream } =
+            flags
+        channel =
+            Phoenix.Channel.init ("room:" ++ model.userStream)
 
--- We'll handle either setting the new message or joining the channel.
+        ( phxSocket, phxCmd ) =
+            Phoenix.Socket.join channel model.phxSocket
+
+        model = initModel userStream
+    in
+        ( { model | phxSocket = phxSocket }
+        , Cmd.map PhoenixMsg phxCmd
+        )
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+
+-- COMMANDS
+-- PHOENIX STUFF
+
+
+type alias ChatMessage =
+    {
+    body : String
+    }
+
+
+chatMessageDecoder : JD.Decoder ChatMessage
+chatMessageDecoder =
+    JD.map ChatMessage
+        (field "body" JD.string)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        JoinChannel ->
-            let
-                channel =
-                    Phoenix.Channel.init ("room:" ++ model.userStream)
-
-                ( phxSocket, phxCmd ) =
-                    Phoenix.Socket.join channel model.phxSocket
-            in
-                ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg phxCmd
-                )
-
         PhoenixMsg msg ->
             let
                 ( phxSocket, phxCmd ) =
@@ -100,58 +113,37 @@ update msg model =
                 , Cmd.map PhoenixMsg phxCmd
                 )
 
+        SetNewMessage str ->
+            ( { model | newMessage = str }
+            , Cmd.none
+            )
+
+        ReceiveChatMessage raw ->
+            case JD.decodeValue chatMessageDecoder raw of
+                Ok chatMessage ->
+                    ( { model | messages = (chatMessage.body) :: model.messages }
+                    , Cmd.none
+                    )
+
+                Err error ->
+                    ( model, Cmd.none )
+
+        NoOp ->
+            ( model, Cmd.none )
 
 
--- Our view will consist of a button to join the lobby, a list of messages, and
--- our text input for crafting our message
+
+-- VIEW
 
 
 view : Model -> Html Msg
 view model =
     div []
-        -- Clicking the button joins the lobby channel
-        [ button [ onClick JoinChannel ] [ text ("Join " ++ model.userStream ++ "'s lobby") ]
-        , div [ class "messages" ]
-            -- add loop here to display messages
-            --
-            [ ul []
-                [ li [] [ text "fake incoming message" ]
-                ]
-            ]
+        [
+        h3 [] [ text "Messages:" ]
+        , ul [] ((List.reverse << List.map renderMessage) model.messages)
         ]
 
-
-
--- Wire together the program
-
-
-main : Program Flags
-main =
-    App.programWithFlags
-        { init = init
-        , update = update
-        , view = view
-        , subscriptions = subscriptions
-        }
-
-
-
--- No subscriptions yet
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Phoenix.Socket.listen model.phxSocket PhoenixMsg
-
-
-
--- And here's our init function
-
-
-init : Flags -> ( Model, Cmd Msg )
-init flags =
-    let
-        { userStream } =
-            flags
-    in
-        ( Model "" [] initPhxSocket userStream, Cmd.none )
+renderMessage : String -> Html Msg
+renderMessage str =
+    li [] [ text str ]

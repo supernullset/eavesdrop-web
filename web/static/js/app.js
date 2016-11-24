@@ -17,4 +17,14 @@ import "phoenix_html"
 //
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
-import "./socket"
+//import "./socket"
+
+
+import Elm from "./main";
+const elmDiv = document.querySelector("#elm-target");
+if (elmDiv) {
+    let userStream = document.querySelector("#user_name").innerText
+    Elm.Main.embed(elmDiv, {
+        userStream: userStream
+    });
+}
