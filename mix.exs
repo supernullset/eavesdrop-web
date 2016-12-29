@@ -43,7 +43,7 @@ defmodule EavesdropWeb.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:eavesdrop_otp, github: "supernullset/eavesdrop-otp"},
+     {:eavesdrop_otp, in_umbrella: true},
     ]
   end
 end
