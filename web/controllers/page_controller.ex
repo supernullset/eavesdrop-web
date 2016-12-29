@@ -1,8 +1,12 @@
 defmodule EavesdropWeb.PageController do
   use EavesdropWeb.Web, :controller
 
+  @everyone "everyone"
+
   def index(conn, _params) do
-    render conn, "index.html"
+    conn
+    |> put_session(:listening_to, @everyone)
+    |> render "index.html", user_name: @everyone
   end
 
   def user_stream(conn, %{"user_name" => user_name} = params) do

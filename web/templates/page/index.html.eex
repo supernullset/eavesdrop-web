@@ -1,6 +1,8 @@
+<h3>Everyone's stream</h3>
+<span id="user_name"><%= @user_name %></span>
 <div class="row marketing">
   <div class="col-lg-6">
     <div id="messages"></div>
-    <input id="chat-input" type="text"></input>
   </div>
 </div>
+<div id="elm-target"></div></div>

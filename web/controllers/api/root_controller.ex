@@ -15,6 +15,7 @@ defmodule EavesdropWeb.API.RootController do
     end
 
     EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:everyone", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -28,6 +29,7 @@ defmodule EavesdropWeb.API.RootController do
     end
 
     EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:everyone", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -41,6 +43,7 @@ defmodule EavesdropWeb.API.RootController do
     end
 
     EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:everyone", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -49,6 +52,7 @@ defmodule EavesdropWeb.API.RootController do
       true ->
         {:ok, message} = EavesdropOTP.UserSession.stop_track(user_name)
         EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
+        EavesdropWeb.Endpoint.broadcast! "user:everyone", "state_change", %{body: message}
       _ -> nil
     end
 
