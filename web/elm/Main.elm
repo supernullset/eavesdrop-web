@@ -37,7 +37,7 @@ type Msg
     =
     SetNewMessage String
     | PhoenixMsg (Phoenix.Socket.Msg Msg)
-    | ReceiveChatMessage JE.Value
+    | ReceiveEventMessage JE.Value
     | NoOp
 
 
@@ -53,7 +53,7 @@ initPhxSocket : String -> Phoenix.Socket.Socket Msg
 initPhxSocket stream =
     Phoenix.Socket.init socketServer
         |> Phoenix.Socket.withDebug
-        |> Phoenix.Socket.on "state_change" ("room:" ++ stream) ReceiveChatMessage
+        |> Phoenix.Socket.on "state_change" ("user:" ++ stream) ReceiveEventMessage
 
 
 initModel : String -> Model
@@ -67,7 +67,7 @@ init flags =
         { userStream } =
             flags
         channel =
-            Phoenix.Channel.init ("room:" ++ model.userStream)
+            Phoenix.Channel.init ("user:" ++ model.userStream)
 
         ( phxSocket, phxCmd ) =
             Phoenix.Socket.join channel model.phxSocket
@@ -89,15 +89,15 @@ subscriptions model =
 -- PHOENIX STUFF
 
 
-type alias ChatMessage =
+type alias EventMessage =
     {
     body : String
     }
 
 
-chatMessageDecoder : JD.Decoder ChatMessage
-chatMessageDecoder =
-    JD.map ChatMessage
+eventMessageDecoder : JD.Decoder EventMessage
+eventMessageDecoder =
+    JD.map EventMessage
         (field "body" JD.string)
 
 
@@ -118,10 +118,10 @@ update msg model =
             , Cmd.none
             )
 
-        ReceiveChatMessage raw ->
-            case JD.decodeValue chatMessageDecoder raw of
-                Ok chatMessage ->
-                    ( { model | messages = (chatMessage.body) :: model.messages }
+        ReceiveEventMessage raw ->
+            case JD.decodeValue eventMessageDecoder raw of
+                Ok eventMessage ->
+                    ( { model | messages = (eventMessage.body) :: model.messages }
                     , Cmd.none
                     )
 
@@ -132,10 +132,7 @@ update msg model =
             ( model, Cmd.none )
 
 
-
 -- VIEW
-
-
 view : Model -> Html Msg
 view model =
     div []

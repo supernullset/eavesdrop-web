@@ -14,7 +14,7 @@ defmodule EavesdropWeb.API.RootController do
         message = "signin"
     end
 
-    EavesdropWeb.Endpoint.broadcast! "room:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -27,7 +27,7 @@ defmodule EavesdropWeb.API.RootController do
         message = "not in the system"
     end
 
-    EavesdropWeb.Endpoint.broadcast! "room:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -40,7 +40,7 @@ defmodule EavesdropWeb.API.RootController do
         "not in the system"
     end
 
-    EavesdropWeb.Endpoint.broadcast! "room:#{user_name}", "state_change", %{body: message}
+    EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
     render conn, "play_track.json", %{message: message}
   end
 
@@ -48,7 +48,7 @@ defmodule EavesdropWeb.API.RootController do
     case EavesdropOTP.UserSession.present?(user_name) do
       true ->
         {:ok, message} = EavesdropOTP.UserSession.stop_track(user_name)
-        EavesdropWeb.Endpoint.broadcast! "room:#{user_name}", "state_change", %{body: message}
+        EavesdropWeb.Endpoint.broadcast! "user:#{user_name}", "state_change", %{body: message}
       _ -> nil
     end
 

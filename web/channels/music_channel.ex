@@ -1,7 +1,8 @@
 defmodule EavesdropWeb.MusicChannel do
   use Phoenix.Channel
 
-  def join("room:" <> _user_stream, _msg, socket) do
+  def join("user:" <> _user_stream, _msg, socket) do
+    # TODO: add signin here (based on source permissions?)
     {:ok, socket}
   end
 

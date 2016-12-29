@@ -13341,23 +13341,23 @@ var _user$project$Main$Model = F4(
 	function (a, b, c, d) {
 		return {newMessage: a, messages: b, phxSocket: c, userStream: d};
 	});
-var _user$project$Main$ChatMessage = function (a) {
+var _user$project$Main$EventMessage = function (a) {
 	return {body: a};
 };
-var _user$project$Main$chatMessageDecoder = A2(
+var _user$project$Main$eventMessageDecoder = A2(
 	_elm_lang$core$Json_Decode$map,
-	_user$project$Main$ChatMessage,
+	_user$project$Main$EventMessage,
 	A2(_elm_lang$core$Json_Decode$field, 'body', _elm_lang$core$Json_Decode$string));
 var _user$project$Main$NoOp = {ctor: 'NoOp'};
-var _user$project$Main$ReceiveChatMessage = function (a) {
-	return {ctor: 'ReceiveChatMessage', _0: a};
+var _user$project$Main$ReceiveEventMessage = function (a) {
+	return {ctor: 'ReceiveEventMessage', _0: a};
 };
 var _user$project$Main$initPhxSocket = function (stream) {
 	return A4(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
 		'state_change',
-		A2(_elm_lang$core$Basics_ops['++'], 'room:', stream),
-		_user$project$Main$ReceiveChatMessage,
+		A2(_elm_lang$core$Basics_ops['++'], 'user:', stream),
+		_user$project$Main$ReceiveEventMessage,
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug(
 			_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(_user$project$Main$socketServer)));
 };
@@ -13377,7 +13377,7 @@ var _user$project$Main$init = function (flags) {
 	var userStream = _p1.userStream;
 	var model = _user$project$Main$initModel(userStream);
 	var channel = _fbonetti$elm_phoenix_socket$Phoenix_Channel$init(
-		A2(_elm_lang$core$Basics_ops['++'], 'room:', model.userStream));
+		A2(_elm_lang$core$Basics_ops['++'], 'user:', model.userStream));
 	var _p2 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$join, channel, model.phxSocket);
 	var phxSocket = _p2._0;
 	var phxCmd = _p2._1;
@@ -13415,8 +13415,8 @@ var _user$project$Main$update = F2(
 						{newMessage: _p3._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'ReceiveChatMessage':
-				var _p5 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$chatMessageDecoder, _p3._0);
+			case 'ReceiveEventMessage':
+				var _p5 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Main$eventMessageDecoder, _p3._0);
 				if (_p5.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
@@ -13450,7 +13450,7 @@ var _user$project$Main$SetNewMessage = function (a) {
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Main.Msg":{"args":[],"tags":{"SetNewMessage":["String"],"ReceiveChatMessage":["Json.Encode.Value"],"PhoenixMsg":["Phoenix.Socket.Msg Main.Msg"],"NoOp":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"}},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Json.Encode.Value":{"args":[],"tags":{"Value":[]}},"Main.Msg":{"args":[],"tags":{"SetNewMessage":["String"],"PhoenixMsg":["Phoenix.Socket.Msg Main.Msg"],"ReceiveEventMessage":["Json.Encode.Value"],"NoOp":[]}},"Phoenix.Socket.Msg":{"args":["msg"],"tags":{"ChannelErrored":["String"],"ChannelClosed":["String"],"ExternalMsg":["msg"],"ChannelJoined":["String"],"Heartbeat":["Time.Time"],"NoOp":[],"ReceiveReply":["String","Int"]}}},"aliases":{"Time.Time":{"args":[],"type":"Float"}},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
